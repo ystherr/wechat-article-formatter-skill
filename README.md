@@ -5,10 +5,11 @@ A Claude Code skill that formats markdown files into beautifully styled HTML opt
 ## Features
 
 - Converts Markdown to styled HTML using [bm.md](https://bm.md) rendering service
+- **Automatic local image upload** - Detects local images in markdown, uploads them, and replaces paths with online URLs
 - Custom CSS styling optimized for WeChat article readability
 - Green accent color theme with clean typography
 - Support for GFM (GitHub Flavored Markdown) syntax
-- Code syntax highlighting with GreenSimple theme
+- Code syntax highlighting with green-simple theme
 - Automatic footnote link conversion
 - Optional integration with WeChat article publisher
 
@@ -49,9 +50,24 @@ Please format my article at ~/articles/tech-post.md
 The skill will:
 1. Read your markdown file
 2. Apply custom WeChat-optimized styling
-3. Call the bm.md API to render the HTML
-4. Save the formatted HTML to the same directory
-5. Offer to publish as a draft to your WeChat account
+3. **Detect and upload local images** (replacing paths with online URLs)
+4. Call the bm.md API to render the HTML
+5. Save the formatted HTML to the same directory
+6. Offer to publish as a draft to your WeChat account
+
+### Image Handling
+
+The skill automatically handles local images in your markdown:
+
+```markdown
+![My Photo](./images/photo.png)           # Relative path - will be uploaded
+![Screenshot](/Users/james/demo.png)      # Absolute path - will be uploaded
+![Logo](https://example.com/logo.png)     # Online URL - skipped (already online)
+```
+
+**Supported image formats:** PNG, JPG, JPEG, GIF, WebP, SVG
+
+Images are uploaded using the `/image-upload` skill and replaced with shareable URLs (e.g., Catbox, ImgBB).
 
 ## Output
 
@@ -77,14 +93,18 @@ The skill uses the following bm.md API settings:
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `codeTheme` | GreenSimple | Code block highlighting theme |
-| `platform` | wechat | Output optimized for WeChat |
-| `enableFootnoteLinks` | true | Convert links to footnotes |
-| `openLinksInNewWindow` | true | Links open in new window |
+| `markdownStyle` | `green-simple` | Base styling theme for rendered output |
+| `platform` | `wechat` | Output optimized for WeChat |
+| `enableFootnoteLinks` | `true` | Convert links to footnotes |
+| `openLinksInNewWindow` | `true` | Links open in new window |
+| `customCss` | (from `styles/custom.css`) | Custom CSS passed as string |
 
 ## Integration
 
-This skill can work with the [WeChat Article Publisher](https://github.com/iamzifei/wechat-article-publisher-skill) skill to directly publish formatted articles as drafts to your WeChat public account.
+This skill works with:
+
+- **[image-upload](https://github.com/iamzifei/image-upload-skill)** - Automatically uploads local images referenced in your markdown to online hosting providers
+- **[WeChat Article Publisher](https://github.com/iamzifei/wechat-article-publisher-skill)** - Optionally publish formatted articles as drafts to your WeChat public account
 
 ## Project Structure
 
@@ -100,6 +120,7 @@ wechat-article-formatter-skill/
 
 - Claude Code CLI
 - Internet access for bm.md API calls
+- `/image-upload` skill installed (for local image support)
 
 ## License
 
